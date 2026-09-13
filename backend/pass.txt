@@ -1,0 +1,10 @@
+Pre-Configured Demo Accounts
+You can use the 1-Click Quick Demo Role Switcher at the top of the frontend or log in with any of the accounts below:
+
+Role	     Username	Password	Full Name
+Admin	        admin	Admin@123	Rajesh Sharma
+Field Officer	field_officer1	Officer@123	Amit Kumar
+District Officer	district_officer1	District@123	Dr. Neha Verma
+Finance Officer	finance_officer1	Finance@123	Sanjay Gupta
+Beneficiary 1	farmer_john	User@123	John Doe
+Beneficiary 2	artisan_priya	User@123	Priya Patel

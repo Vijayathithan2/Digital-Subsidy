@@ -2,27 +2,23 @@ import api from './api';
 
 export const schemeService = {
   getAllSchemes: async () => {
-    const response = await api.get('/api/schemes');
-    return response.data;
+    // api interceptor already unwraps response.data
+    return await api.get('/api/schemes');
   },
 
   getActiveSchemes: async () => {
-    const response = await api.get('/api/schemes/active');
-    return response.data;
+    return await api.get('/api/schemes/active');
   },
 
   getSchemeById: async (id) => {
-    const response = await api.get(`/api/schemes/${id}`);
-    return response.data;
+    return await api.get(`/api/schemes/${id}`);
   },
 
   createScheme: async (schemeData) => {
-    const response = await api.post('/api/schemes', schemeData);
-    return response.data;
+    return await api.post('/api/schemes', schemeData);
   },
 
   updateScheme: async (id, schemeData) => {
-    const response = await api.put(`/api/schemes/${id}`, schemeData);
-    return response.data;
+    return await api.put(`/api/schemes/${id}`, schemeData);
   },
 };

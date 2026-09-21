@@ -12,33 +12,47 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const { success, error } = useToast();
 
+  const isUserValid = (u) => !!u && typeof u === 'object' && (!!u.username || !!u.id);
+
   // Initialize auth state from local storage
   useEffect(() => {
     const initAuth = async () => {
       const storedToken = storage.getToken();
-      const storedUser = storage.getUser();
+      const rawUser = storage.getUser();
+      const storedUser = rawUser?.data || rawUser;
 
-      if (storedToken && storedUser) {
+      if (storedToken && isUserValid(storedUser)) {
         setToken(storedToken);
         setUser(storedUser);
         try {
-          // Verify with backend
-          const currentUser = await authService.getCurrentUser();
-          setUser({
-            ...storedUser,
-            fullName: currentUser.fullName,
-            email: currentUser.email,
-            roles: currentUser.roles,
-          });
-          storage.setUser({
-            ...storedUser,
-            fullName: currentUser.fullName,
-            email: currentUser.email,
-            roles: currentUser.roles,
-          });
+          // Verify with backend — refreshes user info (fullName, email, roles)
+          const res = await authService.getCurrentUser();
+          const currentUser = res?.data || res;
+          if (isUserValid(currentUser)) {
+            const updatedUser = {
+              ...storedUser,
+              fullName: currentUser.fullName || storedUser.fullName,
+              email: currentUser.email || storedUser.email,
+              roles: currentUser.roles || storedUser.roles,
+            };
+            setUser(updatedUser);
+            storage.setUser(updatedUser);
+          }
         } catch (err) {
-          console.warn('Session verification failed, using cached session or clearing', err);
+          if (err.status === 401 || err.status === 0) {
+            console.warn('Session expired or invalid — clearing auth state', err.message);
+            storage.clearAuth();
+            setToken(null);
+            setUser(null);
+          } else {
+            console.warn('Session verification failed, using cached session', err.message);
+          }
         }
+      } else {
+        // Clear invalid or corrupt storage
+        storage.clearAuth();
+        setToken(null);
+        setUser(null);
       }
       setLoading(false);
     };
@@ -49,8 +63,13 @@ export const AuthProvider = ({ children }) => {
   const login = useCallback(async (username, password) => {
     setLoading(true);
     try {
-      const loginData = await authService.login({ username, password });
-      // loginData: { token, type, id, username, email, fullName, roles }
+      const res = await authService.login({ username, password });
+      const loginData = res?.data || res;
+
+      if (!loginData || !loginData.token) {
+        throw new Error('Invalid authentication payload received from server');
+      }
+
       storage.setToken(loginData.token);
       storage.setUser(loginData);
       setToken(loginData.token);
@@ -75,10 +94,16 @@ export const AuthProvider = ({ children }) => {
   const quickSwitchRole = useCallback(async (demoAccount) => {
     setLoading(true);
     try {
-      const loginData = await authService.login({
+      const res = await authService.login({
         username: demoAccount.username,
         password: demoAccount.password,
       });
+      const loginData = res?.data || res;
+
+      if (!loginData || !loginData.token) {
+        throw new Error('Invalid authentication payload received from server');
+      }
+
       storage.setToken(loginData.token);
       storage.setUser(loginData);
       setToken(loginData.token);
@@ -97,7 +122,7 @@ export const AuthProvider = ({ children }) => {
     user,
     token,
     loading,
-    isAuthenticated: !!token && !!user,
+    isAuthenticated: !!token && isUserValid(user),
     roles: user?.roles || [],
     login,
     logout,

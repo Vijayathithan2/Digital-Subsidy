@@ -2,13 +2,12 @@ import api from './api';
 
 export const applicationService = {
   createApplication: async (applicationRequest) => {
-    const response = await api.post('/api/applications', applicationRequest);
-    return response.data;
+    // api interceptor already unwraps response.data
+    return await api.post('/api/applications', applicationRequest);
   },
 
   submitApplication: async (id) => {
-    const response = await api.post(`/api/applications/${id}/submit`);
-    return response.data;
+    return await api.post(`/api/applications/${id}/submit`);
   },
 
   attachDocument: async (id, documentType, fileName, fileType = 'application/pdf', filePath) => {
@@ -18,28 +17,23 @@ export const applicationService = {
       fileType,
       filePath: filePath || `uploads/documents/${fileName}`,
     });
-    const response = await api.post(`/api/applications/${id}/documents?${params.toString()}`);
-    return response.data;
+    return await api.post(`/api/applications/${id}/documents?${params.toString()}`);
   },
 
   evaluateEligibility: async (id) => {
-    const response = await api.post(`/api/applications/${id}/evaluate-eligibility`);
-    return response.data; // EligibilityEvaluationResult
+    return await api.post(`/api/applications/${id}/evaluate-eligibility`); // EligibilityEvaluationResult
   },
 
   getApplicationById: async (id) => {
-    const response = await api.get(`/api/applications/${id}`);
-    return response.data; // ApplicationResponse
+    return await api.get(`/api/applications/${id}`); // ApplicationResponse
   },
 
   getMyApplications: async () => {
-    const response = await api.get('/api/applications/my');
-    return response.data; // List<ApplicationResponse>
+    return await api.get('/api/applications/my'); // List<ApplicationResponse>
   },
 
   getAllApplications: async (status = null) => {
     const url = status ? `/api/applications?status=${status}` : '/api/applications';
-    const response = await api.get(url);
-    return response.data; // List<ApplicationResponse>
+    return await api.get(url); // List<ApplicationResponse>
   },
 };

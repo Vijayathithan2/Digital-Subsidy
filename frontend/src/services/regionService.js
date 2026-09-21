@@ -2,17 +2,15 @@ import api from './api';
 
 export const regionService = {
   getAllRegions: async () => {
-    const response = await api.get('/api/regions');
-    return response.data; // List<Region>
+    // api interceptor already unwraps response.data
+    return await api.get('/api/regions'); // List<Region>
   },
 
   getRegionById: async (id) => {
-    const response = await api.get(`/api/regions/${id}`);
-    return response.data; // Region
+    return await api.get(`/api/regions/${id}`); // Region
   },
 
   createRegion: async (regionData) => {
-    const response = await api.post('/api/regions', regionData);
-    return response.data; // Region
+    return await api.post('/api/regions', regionData); // Region
   },
 };

@@ -2,13 +2,12 @@ import api from './api';
 
 export const utilizationService = {
   submitUtilization: async (applicationId, utilizationRequest) => {
-    const response = await api.post(`/api/utilizations/application/${applicationId}`, utilizationRequest);
-    return response.data; // UtilizationResponse
+    // api interceptor already unwraps response.data
+    return await api.post(`/api/utilizations/application/${applicationId}`, utilizationRequest); // UtilizationResponse
   },
 
   getUtilizationsByApplication: async (applicationId) => {
-    const response = await api.get(`/api/utilizations/application/${applicationId}`);
-    return response.data; // List<UtilizationResponse>
+    return await api.get(`/api/utilizations/application/${applicationId}`); // List<UtilizationResponse>
   },
 
   verifyUtilization: async (id, approved = true, remarks = 'Ground expenditure verified against submitted invoices') => {
@@ -16,7 +15,6 @@ export const utilizationService = {
       approved: String(approved),
       remarks: remarks || '',
     });
-    const response = await api.post(`/api/utilizations/${id}/verify?${query.toString()}`);
-    return response.data; // UtilizationResponse
+    return await api.post(`/api/utilizations/${id}/verify?${query.toString()}`); // UtilizationResponse
   },
 };

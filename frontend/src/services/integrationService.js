@@ -8,12 +8,11 @@ export const integrationService = {
       amount: String(amount),
       schemeCode,
     });
-    const response = await api.post(`/api/integrations/treasury/test-transfer?${params.toString()}`);
-    return response.data; // TreasuryDisbursementResult
+    // api interceptor already unwraps response.data
+    return await api.post(`/api/integrations/treasury/test-transfer?${params.toString()}`); // TreasuryDisbursementResult
   },
 
   verifyIdentity: async (identityNumber) => {
-    const response = await api.get(`/api/integrations/beneficiary/verify-identity?identityNumber=${encodeURIComponent(identityNumber)}`);
-    return response.data; // IdentityVerificationResponse
+    return await api.get(`/api/integrations/beneficiary/verify-identity?identityNumber=${encodeURIComponent(identityNumber)}`); // IdentityVerificationResponse
   },
 };

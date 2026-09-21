@@ -1,14 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { LogOut, Menu, Landmark, Headphones, LogIn, UserPlus, FileCheck, HelpCircle, MessageSquare, ShieldCheck } from 'lucide-react';
 import { ROLE_LABELS } from '../../constants/roles';
 import { Link, useLocation } from 'react-router-dom';
 
+import { HelpdeskModal } from '../modals/HelpdeskModal';
+import { GrievanceModal } from '../modals/GrievanceModal';
+import { FaqModal } from '../modals/FaqModal';
+import { GuidelinesModal } from '../modals/GuidelinesModal';
+import { OtrLookupModal } from '../modals/OtrLookupModal';
+
 export const Header = ({ onToggleSidebar }) => {
-  const { user, logout, roles } = useAuth();
+  const { user, logout, roles, isAuthenticated } = useAuth();
   const location = useLocation();
   const primaryRole = roles[0] || 'ROLE_BENEFICIARY';
   const roleLabel = ROLE_LABELS[primaryRole] || primaryRole;
+
+  const [activeModal, setActiveModal] = useState(null); // 'helpdesk' | 'grievance' | 'faq' | 'guidelines' | 'otr' | null
+
+  const isBeneficiaryOrGuest =
+    !isAuthenticated ||
+    roles.length === 0 ||
+    roles.includes('ROLE_BENEFICIARY') ||
+    (!roles.includes('ROLE_ADMIN') &&
+     !roles.includes('ROLE_FIELD_OFFICER') &&
+     !roles.includes('ROLE_DISTRICT_OFFICER') &&
+     !roles.includes('ROLE_FINANCE_OFFICER'));
 
   return (
     <header
@@ -90,12 +107,24 @@ export const Header = ({ onToggleSidebar }) => {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--nsp-charcoal)', fontWeight: 600 }}>
+          <div
+            onClick={() => setActiveModal('helpdesk')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              fontSize: '13px',
+              color: 'var(--nsp-charcoal)',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+            title="Open National Helpdesk"
+          >
             <Headphones size={18} color="#ee4b6c" />
             <span>Helpdesk</span>
           </div>
 
-          {user ? (
+          {isAuthenticated && user ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ textAlign: 'right' }}>
                 <div
@@ -164,138 +193,154 @@ export const Header = ({ onToggleSidebar }) => {
         </div>
       </div>
 
-      {/* Signature NSP Coral Pink Ribbon Bar */}
-      <div
-        style={{
-          backgroundColor: '#ee4b6c',
-          padding: '0 24px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '4px',
-          overflowX: 'auto',
-        }}
-      >
-        <Link
-          to="/login"
+      {/* Signature NSP Coral Pink Ribbon Bar - Only visible to Beneficiaries & Public Guests */}
+      {isBeneficiaryOrGuest ? (
+        <div
           style={{
-            display: 'inline-flex',
+            backgroundColor: '#ee4b6c',
+            padding: '0 24px',
+            display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            padding: '9px 18px',
-            backgroundColor: location.pathname === '/login' || location.pathname === '/' ? '#374151' : 'transparent',
-            color: '#ffffff',
-            fontWeight: 700,
-            fontSize: '13px',
-            fontFamily: 'var(--font-heading)',
-            textDecoration: 'none',
-            transition: 'background-color 0.15s ease',
-            whiteSpace: 'nowrap',
+            gap: '4px',
+            overflowX: 'auto',
           }}
         >
-          <LogIn size={15} /> Login
-        </Link>
+        {!isAuthenticated ? (
+          // Unauthenticated: show auth links
+          <>
+            <Link
+              to="/login"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '9px 18px',
+                backgroundColor: location.pathname === '/login' || location.pathname === '/' ? '#be123c' : 'transparent',
+                color: '#ffffff',
+                fontWeight: 700,
+                fontSize: '13px',
+                fontFamily: 'var(--font-heading)',
+                textDecoration: 'none',
+                transition: 'background-color 0.15s ease',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <LogIn size={15} /> Login
+            </Link>
 
-        <Link
-          to="/register"
+            <Link
+              to="/register"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '9px 18px',
+                backgroundColor: location.pathname === '/register' ? '#be123c' : 'transparent',
+                color: '#ffffff',
+                fontWeight: 600,
+                fontSize: '13px',
+                fontFamily: 'var(--font-heading)',
+                textDecoration: 'none',
+                transition: 'background-color 0.15s ease',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <UserPlus size={15} /> Register
+            </Link>
+          </>
+        ) : null}
+
+        <button
+          onClick={() => setActiveModal('otr')}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
             padding: '9px 18px',
-            backgroundColor: location.pathname === '/register' ? '#374151' : 'transparent',
+            backgroundColor: 'transparent',
+            border: 'none',
             color: '#ffffff',
             fontWeight: 600,
             fontSize: '13px',
             fontFamily: 'var(--font-heading)',
-            textDecoration: 'none',
-            transition: 'background-color 0.15s ease',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          <UserPlus size={15} /> Register
-        </Link>
-
-        <Link
-          to={user ? "/beneficiary/schemes" : "/login"}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '9px 18px',
-            backgroundColor: location.pathname.includes('/schemes') ? '#374151' : 'transparent',
-            color: '#ffffff',
-            fontWeight: 600,
-            fontSize: '13px',
-            fontFamily: 'var(--font-heading)',
-            textDecoration: 'none',
-            transition: 'background-color 0.15s ease',
+            cursor: 'pointer',
             whiteSpace: 'nowrap',
           }}
         >
           <FileCheck size={15} /> Know your OTR / Scheme
-        </Link>
+        </button>
 
-        <a
-          href="#faq"
-          onClick={(e) => e.preventDefault()}
+        <button
+          onClick={() => setActiveModal('faq')}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
             padding: '9px 18px',
+            backgroundColor: 'transparent',
+            border: 'none',
             color: '#ffffff',
             fontWeight: 600,
             fontSize: '13px',
             fontFamily: 'var(--font-heading)',
-            textDecoration: 'none',
+            cursor: 'pointer',
             whiteSpace: 'nowrap',
             opacity: 0.95,
           }}
         >
           <HelpCircle size={15} /> FAQ's
-        </a>
+        </button>
 
-        <a
-          href="#grievance"
-          onClick={(e) => e.preventDefault()}
+        <button
+          onClick={() => setActiveModal('grievance')}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
             padding: '9px 18px',
+            backgroundColor: 'transparent',
+            border: 'none',
             color: '#ffffff',
             fontWeight: 600,
             fontSize: '13px',
             fontFamily: 'var(--font-heading)',
-            textDecoration: 'none',
+            cursor: 'pointer',
             whiteSpace: 'nowrap',
             opacity: 0.95,
           }}
         >
           <MessageSquare size={15} /> Grievance
-        </a>
+        </button>
 
-        <a
-          href="#guidelines"
-          onClick={(e) => e.preventDefault()}
+        <button
+          onClick={() => setActiveModal('guidelines')}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '8px',
             padding: '9px 18px',
+            backgroundColor: 'transparent',
+            border: 'none',
             color: '#ffffff',
             fontWeight: 600,
             fontSize: '13px',
             fontFamily: 'var(--font-heading)',
-            textDecoration: 'none',
+            cursor: 'pointer',
             whiteSpace: 'nowrap',
             opacity: 0.95,
           }}
         >
           <ShieldCheck size={15} /> Guidelines
-        </a>
+        </button>
       </div>
+      ) : null}
+
+      {/* Render Active Modals */}
+      <HelpdeskModal isOpen={activeModal === 'helpdesk'} onClose={() => setActiveModal(null)} />
+      <GrievanceModal isOpen={activeModal === 'grievance'} onClose={() => setActiveModal(null)} />
+      <FaqModal isOpen={activeModal === 'faq'} onClose={() => setActiveModal(null)} />
+      <GuidelinesModal isOpen={activeModal === 'guidelines'} onClose={() => setActiveModal(null)} />
+      <OtrLookupModal isOpen={activeModal === 'otr'} onClose={() => setActiveModal(null)} />
     </header>
   );
 };
-

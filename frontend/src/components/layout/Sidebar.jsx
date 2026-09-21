@@ -23,6 +23,7 @@ import {
   Users,
   ShieldAlert,
   Cpu,
+  MessageSquare,
 } from 'lucide-react';
 
 const ICON_MAP = {
@@ -45,6 +46,7 @@ const ICON_MAP = {
   Users,
   ShieldAlert,
   Cpu,
+  MessageSquare,
 };
 
 export const Sidebar = ({ isOpen }) => {

@@ -33,7 +33,12 @@ api.interceptors.response.use(
     if (response.config.responseType === 'blob') {
       return response;
     }
-    return response.data;
+    // Unwrap Spring Boot ApiResponse envelope: { success, message, data: T, timestamp } -> T
+    const resData = response.data;
+    if (resData && typeof resData === 'object' && 'success' in resData && 'data' in resData) {
+      return resData.data;
+    }
+    return resData;
   },
   (error) => {
     let message = 'An unexpected error occurred. Please try again.';

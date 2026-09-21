@@ -114,6 +114,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Allow same-origin iframes for H2 console (dev/h2 profile only)
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(authenticationEntryPoint())
                         .accessDeniedHandler(accessDeniedHandler())
@@ -125,6 +127,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/regions", "/api/regions/**").permitAll()
                         .requestMatchers("/", "/index.html", "/static/**", "/*.css", "/*.js", "/*.ico", "/favicon.ico").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        // H2 Console (accessible only with h2 profile — harmless to whitelist here)
+                        .requestMatchers("/h2-console/**").permitAll()
 
                         // Role-specific endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")

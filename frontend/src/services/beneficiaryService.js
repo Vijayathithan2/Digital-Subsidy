@@ -2,27 +2,23 @@ import api from './api';
 
 export const beneficiaryService = {
   registerProfile: async (profileData) => {
-    const response = await api.post('/api/beneficiaries', profileData);
-    return response.data;
+    // api interceptor already unwraps response.data
+    return await api.post('/api/beneficiaries', profileData);
   },
 
   getMyProfile: async () => {
-    const response = await api.get('/api/beneficiaries/me');
-    return response.data;
+    return await api.get('/api/beneficiaries/me');
   },
 
   getById: async (id) => {
-    const response = await api.get(`/api/beneficiaries/${id}`);
-    return response.data;
+    return await api.get(`/api/beneficiaries/${id}`);
   },
 
   getAll: async () => {
-    const response = await api.get('/api/beneficiaries');
-    return response.data;
+    return await api.get('/api/beneficiaries');
   },
 
   updateKycStatus: async (id, status) => {
-    const response = await api.patch(`/api/beneficiaries/${id}/kyc?status=${status}`);
-    return response.data;
+    return await api.patch(`/api/beneficiaries/${id}/kyc?status=${status}`);
   },
 };

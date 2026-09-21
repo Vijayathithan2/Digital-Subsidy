@@ -13,6 +13,8 @@ const downloadBlobAsFile = (blob, filename) => {
 
 export const reportService = {
   downloadSchemeReport: async () => {
+    // Blob responses bypass the interceptor unwrap — api returns full AxiosResponse
+    // api.js interceptor: `if (response.config.responseType === 'blob') return response;`
     const res = await api.get('/api/reports/schemes/csv', { responseType: 'blob' });
     downloadBlobAsFile(new Blob([res.data], { type: 'text/csv' }), 'scheme_summary.csv');
   },

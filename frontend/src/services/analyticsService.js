@@ -2,17 +2,15 @@ import api from './api';
 
 export const analyticsService = {
   getDashboardAnalytics: async () => {
-    const response = await api.get('/api/analytics/dashboard');
-    return response.data; // DashboardAnalyticsResponse
+    // api interceptor already unwraps response.data
+    return await api.get('/api/analytics/dashboard'); // DashboardAnalyticsResponse
   },
 
   getSchemeAnalytics: async () => {
-    const response = await api.get('/api/analytics/schemes');
-    return response.data; // List<SchemeAnalyticsDto>
+    return await api.get('/api/analytics/schemes'); // List<SchemeAnalyticsDto>
   },
 
   getRegionAnalytics: async () => {
-    const response = await api.get('/api/analytics/regions');
-    return response.data; // List<RegionAnalyticsDto>
+    return await api.get('/api/analytics/regions'); // List<RegionAnalyticsDto>
   },
 };

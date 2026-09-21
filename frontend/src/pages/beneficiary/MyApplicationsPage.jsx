@@ -6,19 +6,22 @@ import { StatusBadge, RiskBadge } from '../../components/common/Badge';
 import { DataTable } from '../../components/tables/DataTable';
 import { Button } from '../../components/common/Button';
 import { LoadingSkeleton } from '../../components/common/LoadingSkeleton';
-import { PlusCircle, Eye } from 'lucide-react';
+import { PlusCircle, Eye, AlertCircle, RefreshCw } from 'lucide-react';
 
 export const MyApplicationsPage = () => {
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
 
   const fetchApplications = async () => {
     setLoading(true);
+    setFetchError(null);
     try {
       const data = await applicationService.getMyApplications();
       setApplications(data || []);
     } catch (err) {
       console.error('Failed to load applications:', err);
+      setFetchError(err.message || 'Failed to load your applications. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -109,6 +112,37 @@ export const MyApplicationsPage = () => {
           My Subsidy Applications
         </h2>
         <LoadingSkeleton rows={5} height={60} />
+      </div>
+    );
+  }
+
+  if (fetchError) {
+    return (
+      <div>
+        <h2 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '20px' }}>
+          My Subsidy Applications
+        </h2>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '20px',
+            backgroundColor: '#fff1f2',
+            border: '1px solid #ffe4e6',
+            borderRadius: 'var(--radius-md)',
+            color: '#be123c',
+          }}
+        >
+          <AlertCircle size={20} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700 }}>Failed to load applications</div>
+            <div style={{ fontSize: '13px', marginTop: '2px' }}>{fetchError}</div>
+          </div>
+          <Button variant="secondary" size="sm" icon={RefreshCw} onClick={fetchApplications}>
+            Retry
+          </Button>
+        </div>
       </div>
     );
   }

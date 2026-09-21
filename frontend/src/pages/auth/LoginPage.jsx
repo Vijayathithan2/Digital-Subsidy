@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES, DEMO_ACCOUNTS } from '../../constants/roles';
@@ -10,10 +10,19 @@ export const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   const { login, quickSwitchRole } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    // Show session expired banner when redirected by the API interceptor
+    const params = new URLSearchParams(location.search);
+    if (params.get('expired') === 'true') {
+      setSessionExpired(true);
+    }
+  }, [location.search]);
 
   const handlePostLoginRedirect = (roles = []) => {
     const from = location.state?.from?.pathname;
@@ -79,6 +88,27 @@ export const LoginPage = () => {
         margin: '0 auto',
       }}
     >
+      {/* Session Expired Banner */}
+      {sessionExpired && (
+        <div
+          style={{
+            backgroundColor: '#fff7ed',
+            border: '1px solid #fed7aa',
+            color: '#c2410c',
+            padding: '12px 16px',
+            borderRadius: 'var(--radius-md)',
+            fontSize: '13px',
+            fontWeight: 600,
+            marginBottom: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
+          ⚠️ Your session has expired. Please sign in again.
+        </div>
+      )}
+
       {/* Prominent NSP Header Section */}
       <div style={{ marginBottom: '32px' }}>
         <h1
@@ -201,8 +231,6 @@ export const LoginPage = () => {
                   className="form-input"
                   style={{
                     paddingLeft: '38px',
-                    borderColor: '#ea580c',
-                    boxShadow: '0 0 0 1px #ea580c',
                   }}
                   placeholder="Enter your Username / Aadhaar / ID"
                   value={username}

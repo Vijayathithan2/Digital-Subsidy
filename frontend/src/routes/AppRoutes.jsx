@@ -28,6 +28,7 @@ import { FinanceApprovalPage } from '../pages/officer/FinanceApprovalPage';
 import { DisbursementManagementPage } from '../pages/officer/DisbursementManagementPage';
 import { MilestoneInspectionPage } from '../pages/officer/MilestoneInspectionPage';
 import { UtilizationMonitoringPage } from '../pages/officer/UtilizationMonitoringPage';
+import { GrievanceManagementPage } from '../pages/officer/GrievanceManagementPage';
 
 // Admin Pages
 import { AdminDashboard } from '../pages/admin/AdminDashboard';
@@ -183,6 +184,14 @@ export const AppRoutes = () => {
           element={
             <ProtectedRoute requiredRoles={allOfficersAndAdmin}>
               <UtilizationMonitoringPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="officer/grievances"
+          element={
+            <ProtectedRoute requiredRoles={allOfficersAndAdmin}>
+              <GrievanceManagementPage />
             </ProtectedRoute>
           }
         />
